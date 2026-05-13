@@ -53,10 +53,10 @@ export default function App() {
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem('budget_settings');
-      const defaultState = { totalBudget: 585000, totalDays: 25, startDate: '2026-06-09' };
+      const defaultState = { totalBudget: 585000, startDate: '2026-06-09', endDate: '2026-07-06' };
       return saved ? { ...defaultState, ...JSON.parse(saved) } : defaultState;
     } catch (e) {
-      return { totalBudget: 585000, totalDays: 25, startDate: '2026-06-09' };
+      return { totalBudget: 585000, startDate: '2026-06-09', endDate: '2026-07-06' };
     }
   });
 
@@ -82,7 +82,14 @@ export default function App() {
   }, [expenses]);
 
   // --- Logic ---
-  const targetDailyBudget = settings.totalBudget / settings.totalDays;
+  const totalDays = useMemo(() => {
+    const start = new Date(settings.startDate);
+    const end = new Date(settings.endDate);
+    const diffTime = end.getTime() - start.getTime();
+    return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+  }, [settings.startDate, settings.endDate]);
+
+  const targetDailyBudget = settings.totalBudget / totalDays;
   const currentTripDayDate = useMemo(() => formatDateSafely(settings.startDate, currentDayOffset), [settings.startDate, currentDayOffset]);
   
   const expensesByDate = useMemo(() => {
@@ -153,8 +160,8 @@ export default function App() {
                     <input type="number" value={settings.totalBudget} onChange={(e) => setSettings({...settings, totalBudget: Number(e.target.value)})} className="onyx-input text-xl font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Duration (Days)</label>
-                    <input type="number" value={settings.totalDays} onChange={(e) => setSettings({...settings, totalDays: Number(e.target.value)})} className="onyx-input text-xl font-bold" />
+                    <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">End Date</label>
+                    <input type="date" value={settings.endDate} onChange={(e) => setSettings({...settings, endDate: e.target.value})} className="onyx-input font-bold" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Start Date</label>
@@ -207,7 +214,7 @@ export default function App() {
                 <p className="text-[10px] font-bold text-[#C084FC] uppercase tracking-widest">Day {currentDayOffset + 1}</p>
                 <p className="text-sm font-black">{new Date(currentTripDayDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
               </div>
-              <button onClick={() => setCurrentDayOffset(Math.min(settings.totalDays - 1, currentDayOffset + 1))} className="hover:text-[#C084FC]"><ChevronRight size={20} /></button>
+              <button onClick={() => setCurrentDayOffset(currentDayOffset + 1)} className="hover:text-[#C084FC]"><ChevronRight size={20} /></button>
             </div>
             <Calendar size={16} className="text-zinc-700" />
           </div>

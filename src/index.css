@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@theme {
+  --color-onyx-bg: #000000;
+  --color-onyx-card: #0A0A0A;
+  --color-onyx-border: rgba(255, 255, 255, 0.08);
+  --color-onyx-purple: #C084FC;
+  --color-onyx-purple-glow: rgba(192, 132, 252, 0.25);
+  --color-onyx-text: #FFFFFF;
+  --color-onyx-muted: #71717A;
+  
+  --font-sans: "Inter", -apple-system, system-ui, sans-serif;
+  
+  --radius-onyx: 0.25rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-onyx-bg);
+    color: var(--color-onyx-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .onyx-card {
+    background-color: var(--color-onyx-card);
+    border: 1px solid var(--color-onyx-border);
+    border-radius: var(--radius-onyx);
+  }
+
+  .onyx-button-primary {
+    background: #C084FC;
+    color: #000000;
+    font-weight: 800;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-onyx);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+  }
+
+  .onyx-button-primary:active {
+    transform: scale(0.97);
+  }
+
+  .onyx-input {
+    background-color: #121212;
+    border: 1px solid var(--color-onyx-border);
+    border-radius: var(--radius-onyx);
+    padding: 1.25rem;
+    color: white;
+    width: 100%;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .onyx-input:focus {
+    outline: none;
+    border-color: var(--color-onyx-purple);
+  }
+
+  .purple-glow {
+    box-shadow: 0 0 30px var(--color-onyx-purple-glow);
+  }
+
+  /* Sophisticated gradient text */
+  .gradient-text {
+    background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

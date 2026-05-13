@@ -168,9 +168,17 @@ export default function App() {
                     <input type="date" value={settings.startDate} onChange={(e) => setSettings({...settings, startDate: e.target.value})} className="onyx-input font-bold" />
                   </div>
                 </div>
-                <Drawer.Close asChild>
-                  <button className="onyx-button-primary w-full py-5">Save Mission</button>
-                </Drawer.Close>
+                <div className="space-y-4 mt-auto pt-8 border-t border-zinc-900">
+                  <button 
+                    onClick={() => { if(window.confirm('Erase all ledger data?')) setExpenses([]); }} 
+                    className="w-full py-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/20 hover:bg-red-500/10 transition-colors"
+                  >
+                    Reset Ledger
+                  </button>
+                  <Drawer.Close asChild>
+                    <button className="onyx-button-primary w-full py-5">Save Mission</button>
+                  </Drawer.Close>
+                </div>
               </Drawer.Content>
             </Drawer.Portal>
           </Drawer.Root>

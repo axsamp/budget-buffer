@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 const CATEGORIES = {
-  Food: { icon: Pizza, color: 'text-[#C084FC]', bg: 'bg-[#C084FC]/10' },
+  Food: { icon: Pizza, color: 'text-[#FFC107]', bg: 'bg-[#FFC107]/10' },
   Transit: { icon: Bus, color: 'text-blue-400', bg: 'bg-blue-400/10' },
   Shopping: { icon: ShoppingBag, color: 'text-pink-400', bg: 'bg-pink-400/10' },
   Activity: { icon: Ticket, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
@@ -114,7 +114,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black text-white selection:bg-[#C084FC]/30 font-sans overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black text-white selection:bg-[#FFC107]/30 font-sans overflow-hidden flex flex-col">
       
       {/* Premium Overlays */}
       <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
@@ -124,8 +124,8 @@ export default function App() {
         <header className="flex justify-between items-start pt-12 mb-12 shrink-0">
           <div className="flex flex-col gap-3">
              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-[#C084FC] animate-pulse" />
-                <span className="text-[10px] font-black text-[#C084FC] uppercase tracking-[0.5em] opacity-60">Mission Budget</span>
+                <div className="w-1.5 h-1.5 bg-[#FFC107] animate-pulse" />
+                <span className="text-[10px] font-black text-[#FFC107] uppercase tracking-[0.5em] opacity-60">Mission Budget</span>
              </div>
              <h1 className="text-4xl font-black uppercase tracking-tighter text-white leading-none">Budget Buffer</h1>
           </div>
@@ -133,14 +133,14 @@ export default function App() {
         </header>
 
         <section className="mb-12 shrink-0">
-          <div className="flex items-center gap-2 mb-2"><TrendingUp size={10} className="text-[#C084FC]/40" /><span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Net Buffer</span></div>
+          <div className="flex items-center gap-2 mb-2"><TrendingUp size={10} className="text-[#FFC107]/40" /><span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Net Buffer</span></div>
           <motion.h2 key={cumulativeBuffer} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`text-7xl font-black tracking-tighter ${cumulativeBuffer < 0 ? 'text-red-500' : 'text-white'}`}>{formatCurrency(cumulativeBuffer).replace('¥', '')}<span className="text-2xl ml-2 font-light opacity-20">¥</span></motion.h2>
         </section>
 
         <div className="grid grid-cols-2 gap-4 mb-10 shrink-0">
           <div className="bg-[#0A0A0A] border border-white/5 p-5 rounded-2xl">
              <div className="flex items-center gap-2 mb-1">
-                <Wallet size={10} className="text-[#C084FC] opacity-40" />
+                <Wallet size={10} className="text-[#FFC107] opacity-40" />
                 <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Remaining</span>
              </div>
              <span className="text-xl font-bold tabular-nums">{formatCurrency(totalRemaining)}</span>
@@ -158,7 +158,7 @@ export default function App() {
           <div className="p-5 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
             <div className="flex items-center gap-6">
               <button onClick={() => { triggerHaptic(); setCurrentDayOffset(Math.max(0, currentDayOffset - 1)); }} className="text-zinc-600 hover:text-white transition-colors"><ChevronLeft size={20} /></button>
-              <div className="text-center min-w-[100px]"><p className="text-[9px] font-black text-[#C084FC] uppercase tracking-[0.4em] mb-0.5">Day {currentDayOffset + 1}</p><p className="text-sm font-black uppercase tracking-tight">{new Date(currentTripDayDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p></div>
+              <div className="text-center min-w-[100px]"><p className="text-[9px] font-black text-[#FFC107] uppercase tracking-[0.4em] mb-0.5">Day {currentDayOffset + 1}</p><p className="text-sm font-black uppercase tracking-tight">{new Date(currentTripDayDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p></div>
               <button onClick={() => { triggerHaptic(); setCurrentDayOffset(currentDayOffset + 1); }} className="text-zinc-600 hover:text-white transition-colors"><ChevronRight size={20} /></button>
             </div>
             <Calendar size={16} className="text-zinc-800" />
@@ -168,7 +168,7 @@ export default function App() {
               <div><span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest block mb-2">Allowance</span><span className="text-4xl font-black tabular-nums">{formatCurrency(todayAllowance)}</span></div>
               <div className="text-right"><span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest block mb-2">Spent</span><span className="text-2xl font-black text-zinc-500 tabular-nums">{formatCurrency(todaySpent)}</span></div>
             </div>
-            <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden shadow-inner"><motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, (todaySpent / todayAllowance) * 100)}%` }} className={`h-full ${todaySpent > todayAllowance ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'bg-[#C084FC] shadow-[0_0_10px_rgba(192,132,252,0.3)]'}`} /></div>
+            <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden shadow-inner"><motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, (todaySpent / todayAllowance) * 100)}%` }} className={`h-full ${todaySpent > todayAllowance ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'bg-[#FFC107] shadow-[0_0_10px_rgba(255,193,7,0.3)]'}`} /></div>
           </div>
         </section>
 
@@ -203,7 +203,7 @@ export default function App() {
         <motion.button 
           whileTap={{ scale: 0.9 }} 
           onPointerDown={() => { triggerHaptic(); setIsAdding(true); }} 
-          className="pointer-events-auto h-20 w-20 bg-[#C084FC] flex items-center justify-center shadow-[0_20px_50px_rgba(192,132,252,0.3)] rounded-full text-black hover:scale-105 transition-transform"
+          className="pointer-events-auto h-20 w-20 bg-[#FFC107] flex items-center justify-center shadow-[0_20px_50px_rgba(255,193,7,0.3)] rounded-full text-black hover:scale-105 transition-transform"
         >
           <Plus size={36} strokeWidth={3} />
         </motion.button>
@@ -226,11 +226,11 @@ export default function App() {
               <div className="space-y-10">
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Magnitude (¥)</label>
-                  <input autoFocus inputMode="decimal" type="number" placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} className="w-full text-7xl font-black text-[#C084FC] bg-transparent border-none p-0 focus:ring-0 placeholder:opacity-10 tabular-nums" />
+                  <input autoFocus inputMode="decimal" type="number" placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} className="w-full text-7xl font-black text-[#FFC107] bg-transparent border-none p-0 focus:ring-0 placeholder:opacity-10 tabular-nums" />
                 </div>
-                <div className="grid grid-cols-3 gap-3">{Object.keys(CATEGORIES).map(cat => (<button key={cat} type="button" onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-4 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${newExpense.category === cat ? 'bg-[#C084FC] border-[#C084FC] text-black shadow-[0_0_20px_rgba(192,132,252,0.3)]' : 'bg-white/5 border-white/5 text-zinc-600'}`}>{cat}</button>))}</div>
-                <div className="space-y-3"><label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Annotation</label><input type="text" placeholder="Entry Context..." value={newExpense.note} onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} className="w-full py-5 px-6 bg-white/[0.03] border border-white/5 rounded-2xl text-white font-bold placeholder:text-zinc-800 focus:border-[#C084FC]/50 transition-colors" /></div>
-                <button type="submit" className="w-full py-6 bg-[#C084FC] text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-3">Confirm Entry <ArrowRight size={20} /></button>
+                <div className="grid grid-cols-3 gap-3">{Object.keys(CATEGORIES).map(cat => (<button key={cat} type="button" onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-4 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${newExpense.category === cat ? 'bg-[#FFC107] border-[#FFC107] text-black shadow-[0_0_20px_rgba(255,193,7,0.3)]' : 'bg-white/5 border-white/5 text-zinc-600'}`}>{cat}</button>))}</div>
+                <div className="space-y-3"><label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Annotation</label><input type="text" placeholder="Entry Context..." value={newExpense.note} onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} className="w-full py-5 px-6 bg-white/[0.03] border border-white/5 rounded-2xl text-white font-bold placeholder:text-zinc-800 focus:border-[#FFC107]/50 transition-colors" /></div>
+                <button type="submit" className="w-full py-6 bg-[#FFC107] text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-3">Confirm Entry <ArrowRight size={20} /></button>
               </div>
             </motion.form>
           </div>

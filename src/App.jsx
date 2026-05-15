@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Drawer } from 'vaul';
 import { 
   Plus, Trash2, Settings, ChevronLeft, ChevronRight, TrendingUp,
   Pizza, Bus, ShoppingBag, Ticket, MoreHorizontal, X, ArrowRight,
@@ -36,30 +35,23 @@ const formatDateSafely = (dateString, offset = 0) => {
 
 export default function App() {
   const [settings, setSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('budget_settings');
-      const def = { totalBudget: 585000, startDate: '2026-06-09', endDate: '2026-07-06' };
-      return saved ? { ...def, ...JSON.parse(saved) } : def;
-    } catch (e) { return { totalBudget: 585000, startDate: '2026-06-09', endDate: '2026-07-06' }; }
+    const saved = localStorage.getItem('budget_settings');
+    const def = { totalBudget: 585000, startDate: '2026-06-09', endDate: '2026-07-06' };
+    return saved ? { ...def, ...JSON.parse(saved) } : def;
   });
 
   const [expenses, setExpenses] = useState(() => {
-    try {
-      const saved = localStorage.getItem('budget_expenses');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) { return []; }
+    const saved = localStorage.getItem('budget_expenses');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [currentDayOffset, setCurrentDayOffset] = useState(0);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newExpense, setNewExpense] = useState({ amount: '', category: 'Food', note: '' });
 
-  useEffect(() => {
-    localStorage.setItem('budget_settings', JSON.stringify(settings));
-  }, [settings]);
-
-  useEffect(() => {
-    localStorage.setItem('budget_expenses', JSON.stringify(expenses));
-  }, [expenses]);
+  useEffect(() => localStorage.setItem('budget_settings', JSON.stringify(settings)), [settings]);
+  useEffect(() => localStorage.setItem('budget_expenses', JSON.stringify(expenses)), [expenses]);
 
   const totalDays = useMemo(() => {
     const start = new Date(settings.startDate);
@@ -70,22 +62,12 @@ export default function App() {
   const targetDailyBudget = useMemo(() => settings.totalBudget / totalDays, [settings.totalBudget, totalDays]);
   const currentTripDayDate = useMemo(() => formatDateSafely(settings.startDate, currentDayOffset), [settings.startDate, currentDayOffset]);
   
-  const expensesByDate = useMemo(() => {
-    const grouped = {};
-    expenses.forEach(exp => {
-      if (!grouped[exp.date]) grouped[exp.date] = [];
-      grouped[exp.date].push(exp);
-    });
-    return grouped;
-  }, [expenses]);
-
-  const getDayTotal = useCallback((dateStr) => (expensesByDate[dateStr] || []).reduce((sum, exp) => sum + Number(exp.amount), 0), [expensesByDate]);
+  const getDayTotal = useCallback((dateStr) => expenses.filter(e => e.date === dateStr).reduce((sum, exp) => sum + Number(exp.amount), 0), [expenses]);
 
   const cumulativeBuffer = useMemo(() => {
     let buffer = 0;
     for (let i = 0; i < currentDayOffset; i++) {
-      const date = formatDateSafely(settings.startDate, i);
-      buffer += (targetDailyBudget - getDayTotal(date));
+      buffer += (targetDailyBudget - getDayTotal(formatDateSafely(settings.startDate, i)));
     }
     return buffer;
   }, [settings.startDate, targetDailyBudget, getDayTotal, currentDayOffset]);
@@ -98,19 +80,24 @@ export default function App() {
     localStorage.setItem('onyx_total_budget', Math.round(totalRemaining).toString());
   }, [totalRemaining]);
 
-  const handleAddExpense = useCallback(() => {
-    if (!newExpense.amount || isNaN(Number(newExpense.amount))) return;
+  const handleAddExpense = (e) => {
+    if (e) e.preventDefault();
+    const val = Number(newExpense.amount);
+    if (!newExpense.amount || isNaN(val) || val === 0) return;
+    
     triggerHaptic('medium');
     const expense = { 
       id: Date.now(), 
       date: currentTripDayDate, 
-      amount: Math.abs(Number(newExpense.amount)), 
+      amount: Math.abs(val), 
       category: newExpense.category, 
       note: newExpense.note.trim() 
     };
+    
     setExpenses(prev => [expense, ...prev]);
     setNewExpense({ amount: '', category: 'Food', note: '' });
-  }, [newExpense, currentTripDayDate]);
+    setIsAdding(false);
+  };
 
   const handleDelete = useCallback((id) => {
     triggerHaptic('light');
@@ -118,25 +105,13 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#C084FC]/30 font-sans overscroll-none touch-pan-y">
-      <div className="max-w-md mx-auto flex flex-col p-6 min-h-screen">
+    <div className="fixed inset-0 bg-black text-white selection:bg-[#C084FC]/30 font-sans overflow-hidden flex flex-col">
+      
+      {/* Main UI Container */}
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 pb-40">
         <header className="flex justify-between items-center py-6 shrink-0">
           <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-[#C084FC]" /><h1 className="text-xl font-black uppercase tracking-tighter">Onyx</h1></div>
-          <Drawer.Root direction="right">
-            <Drawer.Trigger asChild><button className="w-10 h-10 border border-zinc-900 flex items-center justify-center hover:bg-zinc-900 transition-colors"><Settings size={18} className="text-zinc-600" /></button></Drawer.Trigger>
-            <Drawer.Portal>
-              <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-md z-50" />
-              <Drawer.Content className="fixed right-0 top-0 bottom-0 w-80 bg-black border-l border-zinc-900 z-50 p-8 flex flex-col">
-                <div className="flex justify-between items-center mb-12"><h2 className="text-2xl font-black uppercase tracking-tighter">Settings</h2><Drawer.Close asChild><button><X size={24} /></button></Drawer.Close></div>
-                <div className="space-y-8 flex-1">
-                  <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Budget (¥)</label><input type="number" value={settings.totalBudget} onChange={(e) => setSettings({...settings, totalBudget: Number(e.target.value)})} className="onyx-input text-xl font-bold" /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">End Date</label><input type="date" value={settings.endDate} onChange={(e) => setSettings({...settings, endDate: e.target.value})} className="onyx-input font-bold" /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Start Date</label><input type="date" value={settings.startDate} onChange={(e) => setSettings({...settings, startDate: e.target.value})} className="onyx-input font-bold" /></div>
-                </div>
-                <div className="space-y-4 mt-auto pt-8 border-t border-zinc-900"><button onClick={() => { if(confirm('Erase all ledger data?')) setExpenses([]); }} className="w-full py-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/20 hover:bg-red-500/10 transition-colors">Reset Ledger</button><Drawer.Close asChild><button className="onyx-button-primary w-full py-5">Save Mission</button></Drawer.Close></div>
-              </Drawer.Content>
-            </Drawer.Portal>
-          </Drawer.Root>
+          <button onClick={() => setIsSettingsOpen(true)} className="w-10 h-10 border border-zinc-900 flex items-center justify-center hover:bg-zinc-900 transition-colors"><Settings size={18} className="text-zinc-600" /></button>
         </header>
 
         <section className="mt-4 mb-12 shrink-0">
@@ -167,13 +142,13 @@ export default function App() {
           </div>
         </section>
 
-        <section className="flex-1 overflow-y-auto no-scrollbar pb-40">
+        <section>
           <div className="flex items-center gap-2 mb-6"><Activity size={12} className="text-zinc-700" /><h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">Data Ledger</h3></div>
           <div className="space-y-3">
-            {(expensesByDate[currentTripDayDate] || []).length === 0 ? (
+            {expenses.filter(e => e.date === currentTripDayDate).length === 0 ? (
               <div className="py-16 text-center border border-dashed border-zinc-900 text-zinc-800 text-[10px] font-bold uppercase tracking-widest">Null_Sector</div>
             ) : (
-              expensesByDate[currentTripDayDate].map(exp => {
+              expenses.filter(e => e.date === currentTripDayDate).map(exp => {
                 const Cat = CATEGORIES[exp.category];
                 return (
                   <div key={exp.id} className="onyx-card p-4 flex items-center gap-4 group">
@@ -189,28 +164,114 @@ export default function App() {
             )}
           </div>
         </section>
-
-        <div className="fixed bottom-0 left-0 right-0 p-8 pt-12 pb-[calc(2rem+env(safe-area-inset-bottom))] flex justify-center pointer-events-none z-40 bg-gradient-to-t from-black via-black/80 to-transparent">
-          <Drawer.Root>
-            <Drawer.Trigger asChild><motion.button whileTap={{ scale: 0.9 }} onPointerDown={() => triggerHaptic()} className="pointer-events-auto h-16 w-16 bg-[#C084FC] flex items-center justify-center shadow-lg shadow-[#C084FC]/20 rounded-full"><Plus size={32} className="text-black" strokeWidth={3} /></motion.button></Drawer.Trigger>
-            <Drawer.Portal>
-              <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-              <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 p-6 pt-2 pb-[calc(3rem+env(safe-area-inset-bottom))] bg-[#0A0A0A] border-t border-zinc-900 rounded-t-[2rem] max-w-md mx-auto">
-                <div className="w-12 h-1 bg-zinc-800 rounded-full mx-auto my-4" />
-                <div className="space-y-8">
-                  <div className="flex justify-between items-center"><h3 className="text-xl font-black uppercase tracking-tighter">New Entry</h3><Drawer.Close asChild><button className="text-zinc-600"><X size={24} /></button></Drawer.Close></div>
-                  <div className="space-y-6">
-                    <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase ml-1">Amount (¥)</label><input autoFocus type="number" placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} className="onyx-input text-4xl font-black text-[#C084FC]" /></div>
-                    <div className="grid grid-cols-3 gap-2">{Object.keys(CATEGORIES).map(cat => (<button key={cat} onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-3 border text-[10px] font-bold uppercase transition-all ${newExpense.category === cat ? 'bg-[#C084FC] border-[#C084FC] text-black' : 'border-zinc-900 text-zinc-600'}`}>{cat}</button>))}</div>
-                    <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase ml-1">Note</label><input type="text" placeholder="Optional" value={newExpense.note} onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} className="onyx-input" /></div>
-                  </div>
-                  <Drawer.Close asChild><button onClick={handleAddExpense} className="onyx-button-primary w-full py-5">Confirm Entry <ArrowRight size={18} /></button></Drawer.Close>
-                </div>
-              </Drawer.Content>
-            </Drawer.Portal>
-          </Drawer.Root>
-        </div>
       </div>
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] flex justify-center pointer-events-none z-40 bg-gradient-to-t from-black via-black/80 to-transparent">
+        <motion.button 
+          whileTap={{ scale: 0.9 }} 
+          onPointerDown={() => { triggerHaptic(); setIsAdding(true); }} 
+          className="pointer-events-auto h-16 w-16 bg-[#C084FC] flex items-center justify-center shadow-lg shadow-[#C084FC]/20 rounded-full"
+        >
+          <Plus size={32} className="text-black" strokeWidth={3} />
+        </motion.button>
+      </div>
+
+      {/* Add Entry Modal (Custom to prevent jumping) */}
+      <AnimatePresence>
+        {isAdding && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setIsAdding(false)} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+            />
+            <motion.form 
+              onSubmit={handleAddExpense}
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }} 
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-md bg-[#0A0A0A] border-t border-zinc-900 rounded-t-[2.5rem] p-8 pb-[calc(4rem+env(safe-area-inset-bottom))]"
+            >
+              <div className="w-12 h-1 bg-zinc-800 rounded-full mx-auto mb-8" />
+              <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-black uppercase tracking-tighter">New Entry</h3>
+                <button type="button" onClick={() => setIsAdding(false)} className="text-zinc-600"><X size={24} /></button>
+              </div>
+              
+              <div className="space-y-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase ml-1">Amount (¥)</label>
+                  <input 
+                    autoFocus 
+                    inputMode="decimal"
+                    type="number" 
+                    placeholder="0" 
+                    value={newExpense.amount} 
+                    onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} 
+                    className="onyx-input text-5xl font-black text-[#C084FC] bg-transparent border-none p-0 focus:ring-0" 
+                  />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.keys(CATEGORIES).map(cat => (
+                    <button 
+                      key={cat} 
+                      type="button"
+                      onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} 
+                      className={`py-3 border text-[10px] font-bold uppercase transition-all ${newExpense.category === cat ? 'bg-[#C084FC] border-[#C084FC] text-black' : 'border-zinc-900 text-zinc-600'}`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase ml-1">Note</label>
+                  <input 
+                    type="text" 
+                    placeholder="Optional" 
+                    value={newExpense.note} 
+                    onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} 
+                    className="onyx-input" 
+                  />
+                </div>
+                
+                <button type="submit" className="onyx-button-primary w-full py-5 text-base mt-4">
+                  Confirm Entry <ArrowRight size={20} className="ml-2" />
+                </button>
+              </div>
+            </motion.form>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <div className="fixed inset-0 z-[60] flex justify-end">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSettingsOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            <motion.div 
+              initial={{ x: "100%" }} 
+              animate={{ x: 0 }} 
+              exit={{ x: "100%" }} 
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-80 bg-black border-l border-zinc-900 h-full p-8 flex flex-col"
+            >
+              <div className="flex justify-between items-center mb-12"><h2 className="text-2xl font-black uppercase tracking-tighter">Settings</h2><button onClick={() => setIsSettingsOpen(false)}><X size={24} /></button></div>
+              <div className="space-y-8 flex-1">
+                <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Budget (¥)</label><input type="number" value={settings.totalBudget} onChange={(e) => setSettings({...settings, totalBudget: Number(e.target.value)})} className="onyx-input text-xl font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">End Date</label><input type="date" value={settings.endDate} onChange={(e) => setSettings({...settings, endDate: e.target.value})} className="onyx-input font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Start Date</label><input type="date" value={settings.startDate} onChange={(e) => setSettings({...settings, startDate: e.target.value})} className="onyx-input font-bold" /></div>
+              </div>
+              <div className="space-y-4 mt-auto pt-8 border-t border-zinc-900"><button onClick={() => { if(confirm('Erase all ledger data?')) setExpenses([]); }} className="w-full py-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/20 hover:bg-red-500/10 transition-colors">Reset Ledger</button><button onClick={() => setIsSettingsOpen(false)} className="onyx-button-primary w-full py-5">Save Mission</button></div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -52,7 +52,12 @@ export default function App() {
     } catch (e) { return []; }
   });
 
-  const [currentDayOffset, setCurrentDayOffset] = useState(0);
+  // FIXED: Day offset now persists across sessions
+  const [currentDayOffset, setCurrentDayOffset] = useState(() => {
+    const saved = localStorage.getItem('budget_current_day_offset');
+    return saved ? parseInt(saved) : 0;
+  });
+
   const [isAdding, setIsAdding] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newExpense, setNewExpense] = useState({ amount: '', category: 'Food', note: '' });
@@ -69,6 +74,11 @@ export default function App() {
     const remaining = settings.totalBudget - expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
     localStorage.setItem('onyx_total_budget', Math.round(remaining).toString());
   }, [expenses, settings.totalBudget]);
+
+  // FIXED: Save day offset whenever it changes
+  useEffect(() => {
+    localStorage.setItem('budget_current_day_offset', currentDayOffset.toString());
+  }, [currentDayOffset]);
 
   const totalDays = useMemo(() => {
     const start = new Date(settings.startDate);
@@ -119,10 +129,9 @@ export default function App() {
 
   return (
     <div className="fixed inset-0 bg-black text-white selection:bg-[#C084FC]/30 font-sans overflow-hidden flex flex-col">
-      
       <div className="flex-1 overflow-y-auto no-scrollbar p-6 pb-40">
         <header className="flex justify-between items-center py-6 shrink-0">
-          <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-[#C084FC]" /><h1 className="text-xl font-black uppercase tracking-tighter">Onyx</h1></div>
+          <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-[#C084FC]" /><h1 className="text-xl font-black uppercase tracking-tighter text-white">Onyx Budget</h1></div>
           <button onClick={() => setIsSettingsOpen(true)} className="w-10 h-10 border border-zinc-900 flex items-center justify-center hover:bg-zinc-900 transition-colors"><Settings size={18} className="text-zinc-600" /></button>
         </header>
 

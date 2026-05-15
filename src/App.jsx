@@ -84,7 +84,8 @@ export default function App() {
   const cumulativeBuffer = useMemo(() => {
     let buffer = 0;
     for (let i = 0; i < currentDayOffset; i++) {
-      buffer += (targetDailyBudget - getDayTotal(formatDateSafely(settings.startDate, i)));
+      const date = formatDateSafely(settings.startDate, i);
+      buffer += (targetDailyBudget - getDayTotal(date));
     }
     return buffer;
   }, [settings.startDate, targetDailyBudget, getDayTotal, currentDayOffset]);
@@ -94,13 +95,19 @@ export default function App() {
   const totalRemaining = useMemo(() => settings.totalBudget - expenses.reduce((sum, exp) => sum + Number(exp.amount), 0), [settings.totalBudget, expenses]);
 
   useEffect(() => {
-    localStorage.setItem('onyx_total_budget', totalRemaining.toString());
+    localStorage.setItem('onyx_total_budget', Math.round(totalRemaining).toString());
   }, [totalRemaining]);
 
   const handleAddExpense = useCallback(() => {
-    if (!newExpense.amount) return;
+    if (!newExpense.amount || isNaN(Number(newExpense.amount))) return;
     triggerHaptic('medium');
-    const expense = { id: Date.now(), date: currentTripDayDate, amount: Number(newExpense.amount), category: newExpense.category, note: newExpense.note };
+    const expense = { 
+      id: Date.now(), 
+      date: currentTripDayDate, 
+      amount: Math.abs(Number(newExpense.amount)), 
+      category: newExpense.category, 
+      note: newExpense.note.trim() 
+    };
     setExpenses(prev => [expense, ...prev]);
     setNewExpense({ amount: '', category: 'Food', note: '' });
   }, [newExpense, currentTripDayDate]);
@@ -111,9 +118,9 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#C084FC]/30 font-sans will-change-transform">
+    <div className="min-h-screen bg-black text-white selection:bg-[#C084FC]/30 font-sans overscroll-none touch-pan-y">
       <div className="max-w-md mx-auto flex flex-col p-6 min-h-screen">
-        <header className="flex justify-between items-center py-6">
+        <header className="flex justify-between items-center py-6 shrink-0">
           <div className="flex items-center gap-2"><div className="w-1.5 h-6 bg-[#C084FC]" /><h1 className="text-xl font-black uppercase tracking-tighter">Onyx</h1></div>
           <Drawer.Root direction="right">
             <Drawer.Trigger asChild><button className="w-10 h-10 border border-zinc-900 flex items-center justify-center hover:bg-zinc-900 transition-colors"><Settings size={18} className="text-zinc-600" /></button></Drawer.Trigger>
@@ -132,17 +139,17 @@ export default function App() {
           </Drawer.Root>
         </header>
 
-        <section className="mt-4 mb-12">
+        <section className="mt-4 mb-12 shrink-0">
           <div className="flex items-center gap-2 mb-2"><TrendingUp size={12} className="text-[#C084FC]" /><span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Accumulated Buffer</span></div>
           <motion.h2 key={cumulativeBuffer} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`text-7xl font-black tracking-tighter gradient-text ${cumulativeBuffer < 0 ? '!text-red-500 !bg-none !-webkit-text-fill-color-initial' : ''}`}>{formatCurrency(cumulativeBuffer).replace('¥', '')}<span className="text-2xl ml-1 font-light opacity-20">¥</span></motion.h2>
         </section>
 
-        <div className="grid grid-cols-2 gap-4 mb-10">
+        <div className="grid grid-cols-2 gap-4 mb-10 shrink-0">
           <div className="onyx-card p-5"><span className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">Total Remaining</span><span className="text-xl font-bold">{formatCurrency(totalRemaining)}</span></div>
           <div className="onyx-card p-5"><span className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">Base Target</span><span className="text-xl font-bold opacity-40">{formatCurrency(targetDailyBudget)}</span></div>
         </div>
 
-        <section className="onyx-card mb-10 overflow-hidden">
+        <section className="onyx-card mb-10 overflow-hidden shrink-0">
           <div className="p-4 border-b border-zinc-900/50 bg-zinc-900/10 flex justify-between items-center">
             <div className="flex items-center gap-4">
               <button onClick={() => { triggerHaptic(); setCurrentDayOffset(Math.max(0, currentDayOffset - 1)); }} className="hover:text-[#C084FC]"><ChevronLeft size={20} /></button>
@@ -160,7 +167,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="flex-1 pb-40">
+        <section className="flex-1 overflow-y-auto no-scrollbar pb-40">
           <div className="flex items-center gap-2 mb-6"><Activity size={12} className="text-zinc-700" /><h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">Data Ledger</h3></div>
           <div className="space-y-3">
             {(expensesByDate[currentTripDayDate] || []).length === 0 ? (
@@ -183,12 +190,12 @@ export default function App() {
           </div>
         </section>
 
-        <div className="fixed bottom-0 left-0 right-0 p-8 flex justify-center pointer-events-none z-40 bg-gradient-to-t from-black via-black/80 to-transparent pt-16">
+        <div className="fixed bottom-0 left-0 right-0 p-8 pt-12 pb-[calc(2rem+env(safe-area-inset-bottom))] flex justify-center pointer-events-none z-40 bg-gradient-to-t from-black via-black/80 to-transparent">
           <Drawer.Root>
             <Drawer.Trigger asChild><motion.button whileTap={{ scale: 0.9 }} onPointerDown={() => triggerHaptic()} className="pointer-events-auto h-16 w-16 bg-[#C084FC] flex items-center justify-center shadow-lg shadow-[#C084FC]/20 rounded-full"><Plus size={32} className="text-black" strokeWidth={3} /></motion.button></Drawer.Trigger>
             <Drawer.Portal>
               <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-              <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 p-6 pt-2 pb-12 bg-[#0A0A0A] border-t border-zinc-900 rounded-t-[2rem] max-w-md mx-auto">
+              <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 p-6 pt-2 pb-[calc(3rem+env(safe-area-inset-bottom))] bg-[#0A0A0A] border-t border-zinc-900 rounded-t-[2rem] max-w-md mx-auto">
                 <div className="w-12 h-1 bg-zinc-800 rounded-full mx-auto my-4" />
                 <div className="space-y-8">
                   <div className="flex justify-between items-center"><h3 className="text-xl font-black uppercase tracking-tighter">New Entry</h3><Drawer.Close asChild><button className="text-zinc-600"><X size={24} /></button></Drawer.Close></div>

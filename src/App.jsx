@@ -5,13 +5,19 @@ import {
   Pizza, Bus, ShoppingBag, Ticket, MoreHorizontal, X, ArrowRight,
   Activity, Calendar, Wallet
 } from 'lucide-react';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
 
 const CATEGORIES = {
-  Food: { icon: Pizza, color: 'text-[#FFC107]', bg: 'bg-[#FFC107]/10' },
-  Transit: { icon: Bus, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-  Shopping: { icon: ShoppingBag, color: 'text-pink-400', bg: 'bg-pink-400/10' },
-  Activity: { icon: Ticket, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-  Other: { icon: MoreHorizontal, color: 'text-zinc-600', bg: 'bg-zinc-600/10' },
+  Food: { icon: Pizza, color: 'text-orange-600', bg: 'bg-orange-100' },
+  Transit: { icon: Bus, color: 'text-blue-600', bg: 'bg-blue-100' },
+  Shopping: { icon: ShoppingBag, color: 'text-pink-600', bg: 'bg-pink-100' },
+  Activity: { icon: Ticket, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+  Other: { icon: MoreHorizontal, color: 'text-g-text-variant', bg: 'bg-g-aluminium' },
 };
 
 const triggerHaptic = (type = 'light') => {
@@ -114,83 +120,78 @@ export default function App() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black text-white selection:bg-[#FFC107]/30 font-sans overflow-hidden flex flex-col">
-      
-      {/* Premium Overlays */}
-      <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed inset-0 pointer-events-none z-[101] opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
-
+    <div className="fixed inset-0 bg-g-bg text-g-text selection:bg-g-primary-container font-sans overflow-hidden flex flex-col">
       <div className="flex-1 overflow-y-auto no-scrollbar p-8 pb-40 relative z-10">
         <header className="flex justify-between items-start pt-12 mb-12 shrink-0">
           <div className="flex flex-col gap-3">
              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-[#FFC107] animate-pulse" />
-                <span className="text-[10px] font-black text-[#FFC107] uppercase tracking-[0.5em] opacity-60">Mission Budget</span>
+                <div className="w-1.5 h-1.5 bg-g-primary rounded-full" />
+                <span className="text-[10px] font-bold text-g-primary uppercase tracking-[0.5em]">Mission Budget</span>
              </div>
-             <h1 className="text-4xl font-black uppercase tracking-tighter text-white leading-none">Budget Buffer</h1>
+             <h1 className="text-4xl font-bold tracking-tight text-g-text leading-none">Budget Buffer</h1>
           </div>
-          <button onClick={() => setIsSettingsOpen(true)} className="p-3 border border-zinc-900 flex items-center justify-center hover:bg-zinc-900 transition-colors"><Settings size={18} className="text-zinc-600" /></button>
+          <button onClick={() => setIsSettingsOpen(true)} className="p-3 bg-g-surface rounded-full shadow-elevation-1 flex items-center justify-center hover:bg-g-aluminium transition-colors ripple"><Settings size={18} className="text-g-text-variant" /></button>
         </header>
 
         <section className="mb-12 shrink-0">
-          <div className="flex items-center gap-2 mb-2"><TrendingUp size={10} className="text-[#FFC107]/40" /><span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Net Buffer</span></div>
-          <motion.h2 key={cumulativeBuffer} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`text-7xl font-black tracking-tighter ${cumulativeBuffer < 0 ? 'text-red-500' : 'text-white'}`}>{formatCurrency(cumulativeBuffer).replace('¥', '')}<span className="text-2xl ml-2 font-light opacity-20">¥</span></motion.h2>
+          <div className="flex items-center gap-2 mb-2"><TrendingUp size={14} className="text-g-primary/80" /><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-g-text-variant">Net Buffer</span></div>
+          <motion.h2 key={cumulativeBuffer} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`text-6xl font-bold tracking-tighter ${cumulativeBuffer < 0 ? 'text-red-600' : 'text-g-text'}`}>{formatCurrency(cumulativeBuffer).replace('¥', '')}<span className="text-2xl ml-2 font-medium opacity-50">¥</span></motion.h2>
         </section>
 
         <div className="grid grid-cols-2 gap-4 mb-10 shrink-0">
-          <div className="bg-[#0A0A0A] border border-white/5 p-5 rounded-2xl">
-             <div className="flex items-center gap-2 mb-1">
-                <Wallet size={10} className="text-[#FFC107] opacity-40" />
-                <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Remaining</span>
+          <div className="material-card p-5">
+             <div className="flex items-center gap-2 mb-2">
+                <Wallet size={14} className="text-g-primary" />
+                <span className="text-[9px] font-bold text-g-text-variant uppercase tracking-widest">Remaining</span>
              </div>
-             <span className="text-xl font-bold tabular-nums">{formatCurrency(totalRemaining)}</span>
+             <span className="text-xl font-bold tabular-nums text-g-text">{formatCurrency(totalRemaining)}</span>
           </div>
-          <div className="bg-[#0A0A0A] border border-white/5 p-5 rounded-2xl">
-             <div className="flex items-center gap-2 mb-1">
-                <Activity size={10} className="text-zinc-600 opacity-40" />
-                <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Base Cap</span>
+          <div className="material-card p-5">
+             <div className="flex items-center gap-2 mb-2">
+                <Activity size={14} className="text-g-text-variant" />
+                <span className="text-[9px] font-bold text-g-text-variant uppercase tracking-widest">Base Cap</span>
              </div>
-             <span className="text-xl font-bold opacity-40 tabular-nums">{formatCurrency(targetDailyBudget)}</span>
+             <span className="text-xl font-bold tabular-nums text-g-text-variant">{formatCurrency(targetDailyBudget)}</span>
           </div>
         </div>
 
-        <section className="bg-[#0A0A0A] border border-white/5 rounded-3xl mb-10 overflow-hidden shrink-0 shadow-2xl">
-          <div className="p-5 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+        <section className="material-card mb-10 overflow-hidden shrink-0 shadow-elevation-2">
+          <div className="p-5 border-b border-g-outline/20 bg-g-surface flex justify-between items-center">
             <div className="flex items-center gap-6">
-              <button onClick={() => { triggerHaptic(); setCurrentDayOffset(Math.max(0, currentDayOffset - 1)); }} className="text-zinc-600 hover:text-white transition-colors"><ChevronLeft size={20} /></button>
-              <div className="text-center min-w-[100px]"><p className="text-[9px] font-black text-[#FFC107] uppercase tracking-[0.4em] mb-0.5">Day {currentDayOffset + 1}</p><p className="text-sm font-black uppercase tracking-tight">{new Date(currentTripDayDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p></div>
-              <button onClick={() => { triggerHaptic(); setCurrentDayOffset(currentDayOffset + 1); }} className="text-zinc-600 hover:text-white transition-colors"><ChevronRight size={20} /></button>
+              <button onClick={() => { triggerHaptic(); setCurrentDayOffset(Math.max(0, currentDayOffset - 1)); }} className="text-g-text-variant hover:text-g-text transition-colors w-10 h-10 flex items-center justify-center rounded-full ripple"><ChevronLeft size={20} /></button>
+              <div className="text-center min-w-[100px]"><p className="text-[10px] font-bold text-g-primary uppercase tracking-[0.2em] mb-0.5">Day {currentDayOffset + 1}</p><p className="text-sm font-bold uppercase tracking-tight text-g-text">{new Date(currentTripDayDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p></div>
+              <button onClick={() => { triggerHaptic(); setCurrentDayOffset(currentDayOffset + 1); }} className="text-g-text-variant hover:text-g-text transition-colors w-10 h-10 flex items-center justify-center rounded-full ripple"><ChevronRight size={20} /></button>
             </div>
-            <Calendar size={16} className="text-zinc-800" />
+            <Calendar size={18} className="text-g-text-variant" />
           </div>
           <div className="p-7 space-y-6">
             <div className="flex justify-between items-end">
-              <div><span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest block mb-2">Allowance</span><span className="text-4xl font-black tabular-nums">{formatCurrency(todayAllowance)}</span></div>
-              <div className="text-right"><span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest block mb-2">Spent</span><span className="text-2xl font-black text-zinc-500 tabular-nums">{formatCurrency(todaySpent)}</span></div>
+              <div><span className="text-[10px] font-bold text-g-text-variant uppercase tracking-widest block mb-2">Allowance</span><span className="text-4xl font-bold tabular-nums text-g-text">{formatCurrency(todayAllowance)}</span></div>
+              <div className="text-right"><span className="text-[10px] font-bold text-g-text-variant uppercase tracking-widest block mb-2">Spent</span><span className="text-2xl font-bold text-g-text-variant tabular-nums">{formatCurrency(todaySpent)}</span></div>
             </div>
-            <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden shadow-inner"><motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, (todaySpent / todayAllowance) * 100)}%` }} className={`h-full ${todaySpent > todayAllowance ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : 'bg-[#FFC107] shadow-[0_0_10px_rgba(255,193,7,0.3)]'}`} /></div>
+            <div className="h-2 w-full bg-g-aluminium rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, (todaySpent / todayAllowance) * 100)}%` }} className={`h-full ${todaySpent > todayAllowance ? 'bg-red-500' : 'bg-g-primary'}`} /></div>
           </div>
         </section>
 
         <section>
-          <div className="flex items-center gap-3 mb-8">
-             <div className="w-12 h-[1px] bg-zinc-900" />
-             <h3 className="text-[10px] font-bold uppercase tracking-[0.5em] text-zinc-700">Data Ledger</h3>
+          <div className="flex items-center gap-3 mb-6">
+             <div className="w-12 h-[1px] bg-g-outline/50" />
+             <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-g-text-variant">Data Ledger</h3>
           </div>
           <div className="space-y-4">
             {expenses.filter(e => e.date === currentTripDayDate).length === 0 ? (
-              <div className="py-20 text-center border border-dashed border-zinc-900 rounded-3xl text-zinc-800 text-[10px] font-bold uppercase tracking-[0.4em]">Empty_Sector</div>
+              <div className="py-20 text-center border-2 border-dashed border-g-outline/30 rounded-3xl text-g-text-variant text-xs font-bold uppercase tracking-[0.2em]">No entries for today</div>
             ) : (
               expenses.filter(e => e.date === currentTripDayDate).map(exp => {
                 const Cat = CATEGORIES[exp.category];
                 return (
-                  <div key={exp.id} className="bg-[#0A0A0A] border border-white/5 p-5 rounded-2xl flex items-center gap-5 group transition-all hover:border-white/10 shadow-xl">
-                    <div className={`w-12 h-12 flex items-center justify-center rounded-xl bg-white/[0.03] border border-white/5 ${Cat.color}`}><Cat.icon size={20} /></div>
+                  <div key={exp.id} className="material-card p-5 flex items-center gap-5 ripple shadow-elevation-1 cursor-pointer">
+                    <div className={`w-12 h-12 flex items-center justify-center rounded-full ${Cat.bg} ${Cat.color}`}><Cat.icon size={20} /></div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-center mb-1"><span className="font-black text-base uppercase tracking-tight truncate">{exp.note || exp.category}</span><span className="font-black text-base tabular-nums">{formatCurrency(exp.amount)}</span></div>
-                      <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">{exp.category}</span>
+                      <div className="flex justify-between items-center mb-1"><span className="font-bold text-base tracking-tight truncate text-g-text">{exp.note || exp.category}</span><span className="font-bold text-base tabular-nums text-g-text">{formatCurrency(exp.amount)}</span></div>
+                      <span className="text-[10px] font-bold text-g-text-variant uppercase tracking-wider">{exp.category}</span>
                     </div>
-                    <button onClick={() => handleDelete(exp.id)} className="p-2 text-zinc-800 hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                    <button onClick={() => handleDelete(exp.id)} className="p-2 text-g-text-variant hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"><Trash2 size={18} /></button>
                   </div>
                 )
               })
@@ -199,38 +200,42 @@ export default function App() {
         </section>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-8 pb-[calc(2.5rem+env(safe-area-inset-bottom))] flex justify-center pointer-events-none z-[200] bg-gradient-to-t from-black via-black/80 to-transparent">
+      <div className="fixed bottom-0 left-0 right-0 p-8 pb-[calc(2.5rem+env(safe-area-inset-bottom))] flex justify-center pointer-events-none z-[200] bg-gradient-to-t from-g-bg via-g-bg/90 to-transparent">
         <motion.button 
           whileTap={{ scale: 0.9 }} 
           onPointerDown={() => { triggerHaptic(); setIsAdding(true); }} 
-          className="pointer-events-auto h-20 w-20 bg-[#FFC107] flex items-center justify-center shadow-[0_20px_50px_rgba(255,193,7,0.3)] rounded-full text-black hover:scale-105 transition-transform"
+          className="pointer-events-auto h-16 w-16 bg-g-primary flex items-center justify-center shadow-elevation-3 rounded-2xl text-white hover:bg-blue-700 active:bg-blue-800 transition-colors ripple"
         >
-          <Plus size={36} strokeWidth={3} />
+          <Plus size={32} strokeWidth={2.5} />
         </motion.button>
       </div>
 
       <AnimatePresence>
         {isAdding && (
-          <div className="fixed inset-0 z-[300] flex items-end justify-center px-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAdding(false)} className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
+          <div className="fixed inset-0 z-[300] flex items-end justify-center px-0">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAdding(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
             <motion.form 
               onSubmit={handleAddExpense}
               initial={{ y: "100%" }} 
               animate={{ y: 0 }} 
               exit={{ y: "100%" }} 
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="relative w-full max-w-md bg-[#0A0A0A] border-t border-white/5 rounded-t-[3rem] p-10 pb-[calc(4rem+env(safe-area-inset-bottom))]"
+              transition={{ type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-md bg-g-surface rounded-t-[28px] p-8 pb-[calc(4rem+env(safe-area-inset-bottom))] shadow-elevation-3"
             >
-              <div className="w-16 h-1.5 bg-zinc-800 rounded-full mx-auto mb-10" />
-              <div className="flex justify-between items-center mb-12"><h3 className="text-3xl font-black uppercase tracking-tighter">New Entry</h3><button type="button" onClick={() => setIsAdding(false)} className="text-zinc-600"><X size={28} /></button></div>
-              <div className="space-y-10">
+              <div className="w-12 h-1.5 bg-g-outline/50 rounded-full mx-auto mb-8" />
+              <div className="flex justify-between items-center mb-8"><h3 className="text-2xl font-bold text-g-text">New Entry</h3><button type="button" onClick={() => setIsAdding(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-g-aluminium text-g-text ripple"><X size={20} /></button></div>
+              <div className="space-y-8">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Magnitude (¥)</label>
-                  <input autoFocus inputMode="decimal" type="number" placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} className="w-full text-7xl font-black text-[#FFC107] bg-transparent border-none p-0 focus:ring-0 placeholder:opacity-10 tabular-nums" />
+                  <label className="text-[11px] font-bold text-g-text-variant uppercase tracking-widest ml-1">Amount (¥)</label>
+                  <input autoFocus inputMode="decimal" type="number" placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} className="w-full text-5xl font-bold text-g-primary bg-transparent border-none p-0 focus:ring-0 placeholder:text-g-outline tabular-nums outline-none" />
                 </div>
-                <div className="grid grid-cols-3 gap-3">{Object.keys(CATEGORIES).map(cat => (<button key={cat} type="button" onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-4 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${newExpense.category === cat ? 'bg-[#FFC107] border-[#FFC107] text-black shadow-[0_0_20px_rgba(255,193,7,0.3)]' : 'bg-white/5 border-white/5 text-zinc-600'}`}>{cat}</button>))}</div>
-                <div className="space-y-3"><label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Annotation</label><input type="text" placeholder="Entry Context..." value={newExpense.note} onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} className="w-full py-5 px-6 bg-white/[0.03] border border-white/5 rounded-2xl text-white font-bold placeholder:text-zinc-800 focus:border-[#FFC107]/50 transition-colors" /></div>
-                <button type="submit" className="w-full py-6 bg-[#FFC107] text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-3">Confirm Entry <ArrowRight size={20} /></button>
+                <div className="grid grid-cols-3 gap-3">
+                  {Object.keys(CATEGORIES).map(cat => (
+                    <button key={cat} type="button" onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-4 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all ripple ${newExpense.category === cat ? 'bg-g-primary-container text-g-primary' : 'bg-g-bg border border-g-outline/20 text-g-text-variant'}`}>{cat}</button>
+                  ))}
+                </div>
+                <div className="space-y-3"><label className="text-[11px] font-bold text-g-text-variant uppercase tracking-widest ml-1">Note</label><input type="text" placeholder="What was this for?" value={newExpense.note} onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} className="w-full py-4 px-5 bg-g-bg border border-g-outline/20 rounded-xl text-g-text font-medium placeholder:text-g-text-variant focus:outline-none focus:border-g-primary transition-colors" /></div>
+                <button type="submit" className="w-full py-5 bg-g-primary text-white font-bold rounded-2xl shadow-elevation-2 active:scale-95 transition-transform flex items-center justify-center gap-2 ripple">Add Expense <ArrowRight size={20} /></button>
               </div>
             </motion.form>
           </div>
@@ -240,15 +245,15 @@ export default function App() {
       <AnimatePresence>
         {isSettingsOpen && (
           <div className="fixed inset-0 z-[400] flex justify-end">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSettingsOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
-            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="relative w-80 bg-[#0A0A0A] border-l border-white/5 h-full p-10 flex flex-col shadow-2xl">
-              <div className="flex justify-between items-center mb-16"><h2 className="text-3xl font-black uppercase tracking-tighter">Settings</h2><button onClick={() => setIsSettingsOpen(false)} className="text-zinc-600"><X size={28} /></button></div>
-              <div className="space-y-10 flex-1">
-                <div className="space-y-3"><label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Total Budget (¥)</label><input type="number" value={settings.totalBudget} onChange={(e) => setSettings({...settings, totalBudget: Number(e.target.value)})} className="w-full py-5 px-6 bg-white/[0.03] border border-white/5 rounded-2xl text-xl font-black text-white" /></div>
-                <div className="space-y-3"><label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Start Date</label><input type="date" value={settings.startDate} onChange={(e) => setSettings({...settings, startDate: e.target.value})} className="w-full py-5 px-6 bg-white/[0.03] border border-white/5 rounded-2xl font-black text-white text-sm" /></div>
-                <div className="space-y-3"><label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">End Date</label><input type="date" value={settings.endDate} onChange={(e) => setSettings({...settings, endDate: e.target.value})} className="w-full py-5 px-6 bg-white/[0.03] border border-white/5 rounded-2xl font-black text-white text-sm" /></div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSettingsOpen(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="relative w-80 bg-g-surface border-l border-g-outline/20 h-full p-8 flex flex-col shadow-elevation-3">
+              <div className="flex justify-between items-center mb-12"><h2 className="text-2xl font-bold text-g-text">Settings</h2><button onClick={() => setIsSettingsOpen(false)} className="w-10 h-10 rounded-full bg-g-aluminium flex items-center justify-center text-g-text ripple"><X size={20} /></button></div>
+              <div className="space-y-8 flex-1">
+                <div className="space-y-2"><label className="text-[11px] font-bold text-g-text-variant uppercase tracking-wider">Total Budget (¥)</label><input type="number" value={settings.totalBudget} onChange={(e) => setSettings({...settings, totalBudget: Number(e.target.value)})} className="w-full py-4 px-5 bg-g-bg border border-g-outline/20 rounded-xl text-lg font-bold text-g-text outline-none focus:border-g-primary" /></div>
+                <div className="space-y-2"><label className="text-[11px] font-bold text-g-text-variant uppercase tracking-wider">Start Date</label><input type="date" value={settings.startDate} onChange={(e) => setSettings({...settings, startDate: e.target.value})} className="w-full py-4 px-5 bg-g-bg border border-g-outline/20 rounded-xl font-bold text-g-text text-sm outline-none focus:border-g-primary" /></div>
+                <div className="space-y-2"><label className="text-[11px] font-bold text-g-text-variant uppercase tracking-wider">End Date</label><input type="date" value={settings.endDate} onChange={(e) => setSettings({...settings, endDate: e.target.value})} className="w-full py-4 px-5 bg-g-bg border border-g-outline/20 rounded-xl font-bold text-g-text text-sm outline-none focus:border-g-primary" /></div>
               </div>
-              <div className="space-y-4 mt-auto pt-10 border-t border-white/5"><button onClick={() => { if(confirm('Erase all ledger data?')) setExpenses([]); }} className="w-full py-5 text-[10px] font-black text-red-500 uppercase tracking-[0.3em] border border-red-500/20 rounded-2xl hover:bg-red-500/10 transition-colors">Wipe Lattice</button><button onClick={() => setIsSettingsOpen(false)} className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.2em] rounded-2xl">Save Chassis</button></div>
+              <div className="space-y-4 mt-auto pt-8 border-t border-g-outline/20"><button onClick={() => { if(confirm('Erase all ledger data?')) setExpenses([]); }} className="w-full py-4 text-[11px] font-bold text-red-600 uppercase tracking-wider border border-red-200 rounded-xl hover:bg-red-50 transition-colors">Wipe Data</button><button onClick={() => setIsSettingsOpen(false)} className="w-full py-5 bg-g-primary text-white font-bold rounded-xl shadow-elevation-2 ripple active:scale-95 transition-transform">Save Settings</button></div>
             </motion.div>
           </div>
         )}

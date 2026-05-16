@@ -219,19 +219,19 @@ export default function App() {
               initial={{ y: "100%" }} 
               animate={{ y: 0 }} 
               exit={{ y: "100%" }} 
-              transition={{ type: "tween", duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-md bg-g-surface rounded-t-[28px] p-8 pb-[calc(4rem+env(safe-area-inset-bottom))] shadow-elevation-3"
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="relative w-full max-w-md bg-g-surface rounded-t-[28px] p-6 pb-[env(safe-area-inset-bottom)] shadow-elevation-3 overflow-y-auto max-h-[95vh]"
             >
-              <div className="w-12 h-1.5 bg-g-outline/50 rounded-full mx-auto mb-8" />
-              <div className="flex justify-between items-center mb-8"><h3 className="text-2xl font-bold text-g-text">New Entry</h3><button type="button" onClick={() => setIsAdding(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-g-aluminium text-g-text ripple"><X size={20} /></button></div>
-              <div className="space-y-8">
-                <div className="space-y-3">
+              <div className="w-12 h-1.5 bg-g-outline/50 rounded-full mx-auto mb-6" />
+              <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-g-text">New Entry</h3><button type="button" onClick={() => setIsAdding(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-g-aluminium text-g-text ripple"><X size={20} /></button></div>
+              <div className="space-y-6">
+                <div className="space-y-2">
                   <label className="text-[11px] font-bold text-g-text-variant uppercase tracking-widest ml-1">Amount (¥)</label>
                   <input autoFocus inputMode="decimal" type="number" placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} className="w-full text-5xl font-bold text-g-primary bg-transparent border-none p-0 focus:ring-0 placeholder:text-g-outline tabular-nums outline-none" />
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {Object.keys(CATEGORIES).map(cat => (
-                    <button key={cat} type="button" onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-4 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all ripple ${newExpense.category === cat ? 'bg-g-primary-container text-g-primary' : 'bg-g-bg border border-g-outline/20 text-g-text-variant'}`}>{cat}</button>
+                    <button key={cat} type="button" onClick={() => { triggerHaptic(); setNewExpense({...newExpense, category: cat}); }} className={`py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ripple ${newExpense.category === cat ? 'bg-g-primary-container text-g-primary' : 'bg-g-bg border border-g-outline/20 text-g-text-variant'}`}>{cat}</button>
                   ))}
                 </div>
                 <div className="space-y-3"><label className="text-[11px] font-bold text-g-text-variant uppercase tracking-widest ml-1">Note</label><input type="text" placeholder="What was this for?" value={newExpense.note} onChange={(e) => setNewExpense({...newExpense, note: e.target.value})} className="w-full py-4 px-5 bg-g-bg border border-g-outline/20 rounded-xl text-g-text font-medium placeholder:text-g-text-variant focus:outline-none focus:border-g-primary transition-colors" /></div>

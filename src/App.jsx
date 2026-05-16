@@ -110,13 +110,29 @@ export default function App() {
     triggerHaptic('medium');
     const expense = { id: Date.now(), date: currentTripDayDate, amount: Math.abs(val), category: newExpense.category, note: newExpense.note.trim() };
     setExpenses(prev => [expense, ...prev]);
+
+    // Suica Sync Hack
+    if (newExpense.category === 'Transit') {
+      const wallet = JSON.parse(localStorage.getItem('onyx_wallet') || '{"liquid": 585000, "suica": 12450}');
+      wallet.suica -= Math.abs(val);
+      localStorage.setItem('onyx_wallet', JSON.stringify(wallet));
+    }
+
     setNewExpense({ amount: '', category: 'Food', note: '' });
     setIsAdding(false);
   };
 
   const handleDelete = useCallback((id) => {
     triggerHaptic('light');
-    setExpenses(prev => prev.filter(e => e.id !== id));
+    setExpenses(prev => {
+      const expenseToDelete = prev.find(e => e.id === id);
+      if (expenseToDelete && expenseToDelete.category === 'Transit') {
+        const wallet = JSON.parse(localStorage.getItem('onyx_wallet') || '{"liquid": 585000, "suica": 12450}');
+        wallet.suica += expenseToDelete.amount;
+        localStorage.setItem('onyx_wallet', JSON.stringify(wallet));
+      }
+      return prev.filter(e => e.id !== id);
+    });
   }, []);
 
   return (
